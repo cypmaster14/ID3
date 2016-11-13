@@ -1,17 +1,11 @@
 from Data import Data
-from Tree import learn
+from Tree import getID3Tree
 
 d = Data()
 
 d.load_from_file("tennis.data", 4)
-d._set_debug(["outlook", "temperature", "humidity", "wind", ])
+d.set_atribute(["outlook", "temperature", "humidity", "wind"])
+tree = getID3Tree(d)
 
-tree = learn(d)
-
-print tree.debug(0)
-# print tree.decide(["low","high","2","4","med","low"])
-# print tree.decide(["low","low","2","more","small","high"])
-
-
-
-# print d.get_all_entropy()
+print tree.printTree(0)
+print tree.decide(["sunny", "cool", "high", "strong"])

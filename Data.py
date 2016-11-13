@@ -4,12 +4,12 @@ from collections import Counter
 
 class Data:
     def __init__(self):
-        self._params = None
+        self.atribute = None
 
     def load_from_file(self, file_name, nr_params):
-        """Load training data set from a file in which every line        
-        represent a instance and has values for every parameter 
-        separated by a comma. Last value is the label: unacc,acc,good or vgood.
+        """Incarca datele de antrenament din fisier in care fiecare linie
+        reprezinta o instanta si are valorile fiecarui paramtru
+        separate prin virgule
         """
         self.n = nr_params + 1
         self.data = [[] for _ in range(self.n)]  # empty list for each param + 1 one for label        
@@ -19,69 +19,60 @@ class Data:
         self.nr = len(lines)
         for line in lines:
             line = line[:-1]
-            tokens = line.split(',')
+            valori_instanta = line.split(',')
             for i in range(self.n):
-                self.data[i].append(tokens[i])
+                self.data[i].append(valori_instanta[i])
         self.compute_basic()
 
     def entropy(self, results, nr):
-        """Apply entropy formula
-        results - lists of counts for each possible value 
+        """Calcululul entropiei
         """
-        e = 0.0
+        entropie = 0.0
         for r in results:
             r = float(r)
-            e -= (r / nr) * log(r / nr, 2) if r != 0.0 else 0
-        return e
+            entropie += (r / nr) * log(nr / r, 2) if r != 0.0 else 0
+        return entropie
 
     def compute_basic(self):
-        """Count the evaluation result (unacc,acc,good,vgood)
-        and the data's overall entropy
+        """Count the evaluation result and the data's overall entropy
         """
-        self.counter = Counter(self.data[-1])
+        self.counter = Counter(self.data[-1]) #[9+,5-]
         self.data_entropy = self.entropy(self.counter.values(), self.nr)
 
-    def get_entropy(self, o):
-        """Get the entropy for parameter o"""
+    def get_IG(self, atribut):
+        """Determina IG pentru atributul o"""
 
-        counts = Counter(self.data[o])  # pentru fiecare atribut determin cate instante are fiecare valoare a atr
+        counts = Counter(self.data[atribut])  # pentru fiecare atribut determin cate instante are fiecare valoare a atributului
         information_gain = self.data_entropy
         for k, v in counts.items():
-            count_result = Counter([self.data[-1][i] for i in range(self.nr) if self.data[o][i] == k])
+            count_result = Counter([self.data[-1][i] for i in range(self.nr) if self.data[atribut][i] == k])
             atr_entropy = self.entropy(count_result.values(), v)
             information_gain -= (float(v) / self.nr) * atr_entropy
 
         return information_gain
 
-        # counts = Counter(self.data[o])  # count for each value of parameter
-        # entropy = self.data_entropy
-        # for k, v in counts.items():
-        #     count_result = Counter([self.data[-1][i] for i in range(self.nr) if self.data[o][i] == k])
-        #     entropy -= (v / self.nr) * self.entropy(count_result.values(), v)
-        # return entropy
-
-    def get_all_entropy(self):
-        return [(i, self.get_entropy(i)) for i in range(self.n - 1)]
+    def get_all_IG(self):
+        return [(i, self.get_IG(i)) for i in range(self.n - 1)]
 
     def get_best_param(self):
-        return sorted(self.get_all_entropy(), key=lambda e: e[1], reverse=True)[0][0]
+        return sorted(self.get_all_IG(), key=lambda e: e[1], reverse=True)[0][0]
 
     def is_final(self):
         """Final state if all instance are the same
         or there is no parameter left
+        [6,0] sau m-am folosit de toti parametri
         """
         return self.nr in self.counter.values() or self.n == 1
 
-    def _set_debug(self, p):
-        self._params = p
+    def set_atribute(self, p):
+        self.atribute = p
 
-    def debug(self):
-        s = ""
-        for i in range(self.nr):
-
-            for j in range(self.n):
-                s += "\t" + self.data[j][i]
-        print s
+    # def debug(self):
+    #     s = ""
+    #     for i in range(self.nr):
+    #         for j in range(self.n):
+    #             s += "\t" + self.data[j][i]
+    #     print s
 
 
 def create_from_other(other, param, value):
@@ -101,8 +92,8 @@ def create_from_other(other, param, value):
     data.n = other.n - 1
     data.compute_basic()
 
-    if other._params:  # debug only
-        data._params = [p for p in other._params]
-        del data._params[param]
+    if other.atribute:  # debug only
+        data.atribute = [p for p in other.atribute]
+        del data.atribute[param]
 
     return data
