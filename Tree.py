@@ -36,6 +36,6 @@ def getID3Tree(data):
     else:
         node.param = data.get_best_param()
         node.name = data.atribute[node.param]
-        for value in sorted(set(data.data[node.param])):
+        for value in sorted(set(data.instante[node.param])):
             node.children[value] = getID3Tree(create_from_other(data, node.param, value))
     return node
