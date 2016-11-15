@@ -101,13 +101,6 @@ class Data:
         """
         self.atribute = atribute
 
-        # def debug(self):
-        #     s = ""
-        #     for i in range(self.nr_instante):
-        #         for j in range(self.nr_parametri):
-        #             s += "\t" + self.data[j][i]
-        #     print (s)
-
 
 def create_from_other(other, parametru: int, valoare: str):
     """
@@ -120,10 +113,12 @@ def create_from_other(other, parametru: int, valoare: str):
     """
     data = Data()
     data.instante = [[] for _ in range(other.nr_parametri)]
+    data.nr_instante = 0
     # Imi elimin din datele anterioare instantele atributului pe care l-am
     # ales la pasul anterior
     for i in range(other.nr_instante):
         if other.instante[parametru][i] == valoare:
+            data.nr_instante += 1
             for j in range(other.nr_parametri):
                 data.instante[j].append(other.instante[j][i])
     del data.instante[parametru]
